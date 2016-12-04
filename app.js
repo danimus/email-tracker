@@ -7,34 +7,21 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var fs = require("fs");
 var parser = require('ua-parser-js');
-var mysql      = require('mysql');
 var config = require('./config');
+var tracker = require('./db');
 
 var pmx = require('pmx').init({
-    http          : true, // HTTP routes logging (default: false)
-    http_latency  : 200,  // Limit of acceptable latency
-    http_code     : 500,  // Error code to track'
-    alert_enabled : true,  // Enable alerts (If you add alert subfield in custom it's going to be enabled)
-    ignore_routes : [/socket\.io/, /notFound/], // Ignore http routes with this pattern (default: [])
-    errors        : true, // Exceptions loggin (default: true)
-    custom_probes : true, // Auto expose JS Loop Latency and HTTP req/s as custom metrics (default: true)
-    network       : true, // Network monitoring at the application level (default: false)
-    ports         : true  // Shows which ports your app is listening on (default: false)
+    http: true, // HTTP routes logging (default: false)
+    http_latency: 200,  // Limit of acceptable latency
+    http_code: 500,  // Error code to track'
+    alert_enabled: true,  // Enable alerts (If you add alert subfield in custom it's going to be enabled)
+    ignore_routes: [/socket\.io/, /notFound/], // Ignore http routes with this pattern (default: [])
+    errors: true, // Exceptions loggin (default: true)
+    custom_probes: true, // Auto expose JS Loop Latency and HTTP req/s as custom metrics (default: true)
+    network: true, // Network monitoring at the application level (default: false)
+    ports: true  // Shows which ports your app is listening on (default: false)
 });
 
-var connection = mysql.createConnection({
-    host     : config.db.host,
-    user     : config.db.user,
-    password : config.db.password
-});
-
-connection.connect(function(err) {
-    if (err) {
-        console.error('error connecting: ' + err.stack);
-        return;
-    }
-    console.log('connected as id ' + connection.threadId);
-});
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -53,7 +40,7 @@ app.get('/', function (req, res, next) {
 
 app.get('/pixel.gif', function (req, res, next) {
     var ua = parser(req.headers['user-agent']);
-    console.log(ua);
+    tracker(ua);
     var img = fs.readFileSync('./public/images/tracking/pixel.gif');
     res.writeHead(200, {'Content-Type': 'image/gif'});
     res.end(img, 'binary');
