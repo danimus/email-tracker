@@ -39,8 +39,9 @@ app.get('/', function (req, res, next) {
 });
 
 app.get('/pixel.gif', function (req, res, next) {
+    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     var ua = parser(req.headers['user-agent']);
-    tracker(ua);
+    tracker(ua,ip);
     var img = fs.readFileSync('./public/images/tracking/pixel.gif');
     res.writeHead(200, {'Content-Type': 'image/gif'});
     res.end(img, 'binary');

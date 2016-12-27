@@ -16,8 +16,8 @@ connection.connect(function (err) {
     }
 });
 
-var insertTracking = function (ua, callback) {
-    var tracking = {ua: ua.ua};
+var insertTracking = function (ua, ip, callback) {
+    var tracking = {ua: ua.ua, ip: ip};
     connection.query('INSERT INTO tracking SET ?', tracking, function (err, result) {
         if (err) {
             console.error('Error inserting: ' + err.message);
